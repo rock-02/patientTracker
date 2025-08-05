@@ -1,9 +1,18 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { logout, isAuthenticated } from "../utils/api";
 import "../App.css";
 const HomePage = () => {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout(); // This will clear token and redirect to login
+  };
+
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
   return (
     <div className="home-container">
       {/* Navigation Header */}
@@ -12,27 +21,40 @@ const HomePage = () => {
           <div className="nav-logo">
             <h2>🏥 CityCare Hospital</h2>
           </div>
-          <ul className="nav-menu">
-            <li>
-              <a href="#services">Services</a>
-            </li>
-            <li>
-              <a href="#departments">Departments</a>
-            </li>
-            <li>
-              <a href="#doctors">Doctors</a>
-            </li>
-            <li>
-              <a href="#contact">Contact</a>
-            </li>
-          </ul>
+          <div className="nav-right">
+            <ul className="nav-menu">
+              <li>
+                <a href="#services">Services</a>
+              </li>
+              <li>
+                <a href="#departments">Departments</a>
+              </li>
+              <li>
+                <a href="#doctors">Doctors</a>
+              </li>
+              <li>
+                <a href="#contact">Contact</a>
+              </li>
+            </ul>
+            <div className="nav-auth">
+              {isAuthenticated() ? (
+                <button onClick={handleLogout} className="btn btn-logout">
+                  🚪 Logout
+                </button>
+              ) : (
+                <button onClick={handleLogin} className="btn btn-login">
+                  🔑 Login
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <header className="hero-section">
         <div className="hero-content">
-          <h1>Welcome to CityCare Hospital</h1>
+          <h1>Welcome to Care Hospital</h1>
           <p className="hero-subtitle">
             "Compassionate Care, Advanced Medicine, Trusted Excellence"
           </p>
@@ -57,7 +79,7 @@ const HomePage = () => {
                 className="btn btn-secondary"
                 onClick={() => navigate("/records")}
               >
-                📁 View Patient Records
+                📁 My Medical Reports
               </button>
             </div>
           </div>

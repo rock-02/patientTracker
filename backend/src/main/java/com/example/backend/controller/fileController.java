@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.backend.entities.User;
 import com.example.backend.entities.documents;
 import com.example.backend.response.fileResponse;
+import com.example.backend.services.UserService;
 import com.example.backend.services.fileService;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,29 +19,52 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-// @RequestMapping("/documents/")
+// @CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api")
 public class fileController {
 
     @Autowired
     private fileService fileService;
 
+    @Autowired
+    private UserService userService;
+
+
+    @GetMapping("/me")
+    public ResponseEntity<User> getCurrentUser(@RequestHeader("Authorization") String token) throws Exception {
+        User user = userService.findUserByJwt(token);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(user);
+    }
+
     // Upload file with error handling
     @PostMapping("/documents/upload")
-    public ResponseEntity<fileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<fileResponse> uploadFile(@RequestHeader("Authorization") String token,
+            @RequestParam("file") MultipartFile file) {
+
         String fileName = (file != null) ? file.getOriginalFilename() : null;
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest().body(new fileResponse(null, "No file uploaded"));
         }
         try {
-            documents fileDetails = fileService.uploadFile(file);
+            User user = userService.findUserByJwt(token);
+
+            if (user == null) {
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new fileResponse(fileName, "User not found or unauthorized."));
+            }
+            documents fileDetails = fileService.uploadFile(user,file);
             if (fileDetails == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new fileResponse(fileName, "File upload failed"));
@@ -54,10 +79,15 @@ public class fileController {
 
     // Download file with robust error handling
     @GetMapping("/documents/{id}")
-    public ResponseEntity<?> downloadFileById(@PathVariable Long id) {
+    public ResponseEntity<?> downloadFileById(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         final String UPLOAD_DIR = "uploads";
         try {
-            documents details = fileService.getFile(id);
+            User user = userService.findUserByJwt(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or unauthorized.");
+            }
+
+            documents details = fileService.getFile(user,id);
             if (details == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File metadata not found for id: " + id);
             }
@@ -91,9 +121,16 @@ public class fileController {
 
     // List all files with error handling
     @GetMapping("/documents")
-    public ResponseEntity<?> getAllFiles() {
+    public ResponseEntity<?> getAllFiles(@RequestHeader("Authorization") String token) {
         try {
-            List<documents> files = fileService.getAllFiles();
+
+            User user = userService.findUserByJwt(token);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or unauthorized.");
+            }
+
+            List<documents> files = fileService.getAllFiles(user);
             if (files == null || files.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No files found.");
             }
@@ -107,9 +144,15 @@ public class fileController {
 
     // Delete file with error handling
     @DeleteMapping("/documents/{id}")
-    public ResponseEntity<?> deleteFile(@PathVariable Long id) {
+    public ResponseEntity<?> deleteFile(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         try {
-            String result = fileService.deleteFile(id);
+
+            User user = userService.findUserByJwt(token);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or unauthorized.");
+            }
+
+            String result = fileService.deleteFile(user,id);
             if (result == null || result.toLowerCase().contains("not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found for id: " + id);
             }

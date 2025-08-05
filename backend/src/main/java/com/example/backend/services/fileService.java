@@ -4,16 +4,17 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.backend.entities.User;
 import com.example.backend.entities.documents;
 
 public interface fileService {
 
-    public documents uploadFile(MultipartFile file);
+    public documents uploadFile(User user,MultipartFile file);
 
-    public documents getFile(Long id);
+    public documents getFile(User user,Long id);
 
-    public List<documents> getAllFiles();
+    public List<documents> getAllFiles(User user);
 
-    public String deleteFile(Long id);
+    public String deleteFile(User user, Long id);
 
 }

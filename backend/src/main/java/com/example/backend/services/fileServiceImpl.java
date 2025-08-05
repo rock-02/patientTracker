@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.backend.entities.User;
 import com.example.backend.entities.documents;
 import com.example.backend.repositories.fileRepository;
 
@@ -25,7 +26,7 @@ public class fileServiceImpl implements fileService {
     private static final String UPLOAD_DIR = "uploads";
 
     @Override
-    public documents uploadFile(MultipartFile file) {
+    public documents uploadFile(User user, MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("No file uploaded or file is empty");
         }
@@ -46,7 +47,7 @@ public class fileServiceImpl implements fileService {
             fileDetail.setFileName(file.getOriginalFilename());
             fileDetail.setUploadDate(new Date());
             fileDetail.setFileSize(file.getSize());
-
+            fileDetail.setUser(user); // Associate the file with the use
             return fileRepository.save(fileDetail);
 
         } catch (IOException e) {
@@ -57,9 +58,9 @@ public class fileServiceImpl implements fileService {
     }
 
     @Override
-    public documents getFile(Long id) {
+    public documents getFile(User user, Long id) {
         try {
-            Optional<documents> fiDetails = fileRepository.findById(id);
+            Optional<documents> fiDetails = fileRepository.findByIdAndUser(id, user);
 
             if (!fiDetails.isPresent()) {
                 throw new RuntimeException("No file detail found in database for id: " + id);
@@ -81,9 +82,10 @@ public class fileServiceImpl implements fileService {
     }
 
     @Override
-    public List<documents> getAllFiles() {
+    public List<documents> getAllFiles(User user) {
         try {
-            List<documents> files = fileRepository.findAll();
+
+            List<documents> files = fileRepository.findAllByUser(user);
             return files;
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve file list: " + e.getMessage(), e);
@@ -91,9 +93,9 @@ public class fileServiceImpl implements fileService {
     }
 
     @Override
-    public String deleteFile(Long id) {
+    public String deleteFile(User user, Long id) {
         try {
-            Optional<documents> fileDetailsOpt = fileRepository.findById(id);
+            Optional<documents> fileDetailsOpt = fileRepository.findByIdAndUser(id, user);
             if (!fileDetailsOpt.isPresent()) {
                 throw new RuntimeException("File not found with id: " + id);
             }

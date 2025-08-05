@@ -1,41 +1,70 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  getAllReports,
+  deleteReport,
+  downloadFileAndSave,
+  isAuthenticated,
+  getUserDetails,
+} from "../utils/api";
 
 const GetAllReports = () => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
+  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null);
 
-  // Fetch all reports on component mount
+  // Check authentication on component mount
   useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
     fetchReports();
-  }, []);
+    fetchUserDetails();
+  }, [navigate]);
 
-  const fetchReports = async () => {
+  const fetchUserDetails = async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setUserLoading(true);
+      console.log("Fetching user details...");
 
-      console.log("Fetching reports from:", "http://localhost:8081/documents");
-
-      const response = await fetch("http://localhost:8081/documents", {
-        method: "GET",
-      });
+      const response = await getUserDetails();
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Reports fetched:", data);
-        setReports(data);
+        console.log("User details fetched:", data);
+        setUserDetails(data);
       } else {
-        throw new Error(`Failed to fetch reports: ${response.status}`);
+        throw new Error(`Failed to fetch user details: ${response.status}`);
       }
     } catch (error) {
-      console.error("Fetch error:", error);
-      setError(
-        "Failed to load reports. Please check if the server is running."
-      );
+      console.error("User details fetch error:", error);
+      // Don't set main error for user details failure
+    } finally {
+      setUserLoading(false);
+    }
+  };
+
+  const fetchReports = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await getAllReports();
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setReports(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching reports:", err.message);
+      setError("Failed to load reports. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -44,29 +73,7 @@ const GetAllReports = () => {
   const handleDownload = async (id, fileName) => {
     try {
       console.log("Downloading file:", fileName);
-
-      const response = await fetch(`http://localhost:8081/documents/${id}`, {
-        method: "GET",
-      });
-
-      if (response.ok) {
-        // Create blob from response
-        const blob = await response.blob();
-
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-
-        // Cleanup
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-      } else {
-        throw new Error("Download failed");
-      }
+      await downloadFileAndSave(id, fileName);
     } catch (error) {
       console.error("Download error:", error);
       alert("Download failed. Please try again.");
@@ -82,12 +89,9 @@ const GetAllReports = () => {
       setDeleteLoading(id);
       console.log("Deleting file:", fileName);
 
-      const response = await fetch(`http://localhost:8081/documents/${id}`, {
-        method: "DELETE",
-      });
+      const response = await deleteReport(id);
 
       if (response.ok) {
-        // Remove the deleted report from the list
         setReports(reports.filter((report) => report.id !== id));
         alert("File deleted successfully!");
       } else {
@@ -152,12 +156,43 @@ const GetAllReports = () => {
 
   return (
     <div className="reports-container">
+      {/* User Profile Section */}
+      {userDetails && (
+        <div className="user-profile-section">
+          <div className="user-info">
+            <div className="user-avatar">
+              <span className="avatar-icon">👤</span>
+            </div>
+            <div className="user-details">
+              <h2>{userDetails.name}</h2>
+              <div className="user-contact">
+                <p>
+                  <strong>Email:</strong> {userDetails.email}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {userDetails.phone}
+                </p>
+              </div>
+              <div className="user-address">
+                <p>
+                  <strong>Location:</strong> {userDetails.city},{" "}
+                  {userDetails.state}, {userDetails.country}
+                </p>
+                <p>
+                  <strong>Pincode:</strong> {userDetails.pincode}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="reports-header">
         <button className="back-btn" onClick={() => navigate("/")}>
           ← Back to Home
         </button>
-        <h1>📁 Medical Reports</h1>
+        <h1>📁 My Medical Reports</h1>
         <p>View, download, and manage your uploaded medical reports</p>
         <div className="header-actions">
           <button
@@ -177,8 +212,11 @@ const GetAllReports = () => {
         {reports.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📄</div>
-            <h3>No Reports Found</h3>
-            <p>You haven't uploaded any medical reports yet.</p>
+            <h3>No Medical Reports Yet</h3>
+            <p>
+              You haven't uploaded any medical reports yet. Start by uploading
+              your first report to keep track of your medical history.
+            </p>
             <button
               className="btn btn-primary"
               onClick={() => navigate("/upload")}

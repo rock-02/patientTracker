@@ -1,10 +1,32 @@
-/* Home.css */
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+html,
 body {
-  font-family: Arial, sans-serif;
+  height: 100%;
+  width: 100%;
+  font-family: "Roboto", sans-serif;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
   margin: 0;
   padding: 0;
   background-color: #f4f8fb;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent any element from causing horizontal scroll */
+.container,
+.wrapper,
+.content {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .header {

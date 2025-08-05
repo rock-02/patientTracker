@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { uploadFile, isAuthenticated } from "../utils/api";
 
 const UploadReport = () => {
   const navigate = useNavigate();
@@ -8,6 +9,13 @@ const UploadReport = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -27,10 +35,8 @@ const UploadReport = () => {
         formData.append("file", file);
       });
 
-      const response = await fetch("http://localhost:8081/documents/upload", {
-        method: "POST",
-        body: formData,
-      });
+      // Use the uploadFile function from api utilities
+      const response = await uploadFile(formData);
 
       if (!response.ok) {
         const errorText = await response.text();
