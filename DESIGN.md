@@ -1,76 +1,208 @@
-# Design Document for patientTracker
+# 🏥 PatientTracker - Design Document
+
+<div align="center">
+
+![PatientTracker](https://img.shields.io/badge/PatientTracker-v1.0-blue.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.x-green.svg)
+![React](https://img.shields.io/---
+
+### 📥 Download File
+
+<div align="center">
+
+**`GET http://localhost:8081/api/documents/{id}`**
+
+</div>
+
+| Property             | Value                                        |
+| -------------------- | -------------------------------------------- |
+| **🎯 Method**        | GET                                          |
+| **🔒 Auth Required** | ✅ Yes (JWT token in `Authorization` header) |
+| **📄 Response**      | PDF file as download                         |
+
+> ![Download File](downloadfile.JPG)
+
+**📝 Description:** Downloads the file with the specified ID **only if it was uploaded by the logged-in user**. Unauthorized access to other users' files is not permitted.x-blue.svg)
+![MySQL](https://img.shields.io/badge/MySQL-8.x-orange.svg)
+
+_A secure, scalable document management system for healthcare professionals_
+
+</div>
 
 ---
 
-## 1. Tech Stack Choices
+## 📚 Table of Contents
 
-### a) Frontend Framework
-- **Framework Used:** React.js  
-- **Why Chosen:**  
-  - Efficient for building interactive, responsive single-page applications.
-  - Large ecosystem and community support.
-  - Component-based architecture promotes reuse and maintainability.
-  - Integrates well with RESTful APIs for dynamic data.
-
-### b) Backend Framework
-- **Framework Used:** Spring Boot (Java)  
-- **Why Chosen:**  
-  - Robust and scalable REST API development.
-  - Mature ecosystem for security, validation, and database integration.
-  - Dependency injection and modularity for maintainable codebases.
-  - Good fit for enterprise and data-centric applications.
-
-### c) Database
-- **Database Used:** MySQL  
-- **Why Chosen:**  
-  - Relational model fits users, patients, and files relationships.
-  - ACID compliance ensures data integrity and reliability.
-  - Well-supported by Spring Boot and easy to manage.
-
-### d) Scaling for 1000+ Users
-- **Improvements to Consider:**  
-  - Use a database connection pool (e.g., HikariCP) for efficient DB access.
-  - Move file storage to cloud (e.g., AWS S3) for better performance and scalability.
-  - Add caching (e.g., Redis) for frequent queries.
-  - Deploy multiple backend instances behind a load balancer.
-  - Optimize database indexing and queries.
-  - Use async/background processing for heavy file operations.
-  - Implement monitoring and alerting.
+- [🛠️ Tech Stack Choices](#️-tech-stack-choices)
+- [🔄 System Flow](#-system-flow)
+- [🌐 API Specification](#-api-specification)
+- [📊 Data Flow Description](#-data-flow-description)
+- [⚠️ Assumptions](#️-assumptions)
 
 ---
 
-## 2. System Flow
+## 🛠️ Tech Stack Choices
 
-### Flow Description (Bullets)
-- **Frontend (React):**  
-  - User logs in and uploads/downloads documents.
-  - Sends authenticated HTTP requests to backend, displays responses and file lists.
-- **Backend (Spring Boot):**  
-  - Handles authentication, file upload/download, and user-specific queries.
-  - Uses Spring Security with JWT for authentication/authorization.
-  - Stores uploaded files in a local `uploads` directory.
-  - Stores file metadata and user info in MySQL.
-- **Database (MySQL):**  
-  - Stores users, file metadata, and relationships.
-- **File Storage:**  
-  - Uploaded PDF files stored in a dedicated folder on the backend server.
+### ⚛️ Frontend Framework
 
-### Security Flow
+<table>
+<tr>
+<td><strong>Framework</strong></td>
+<td>React.js</td>
+</tr>
+<tr>
+<td><strong>Version</strong></td>
+<td>18.x</td>
+</tr>
+<tr>
+<td><strong>Why Chosen</strong></td>
+<td>
+• 🚀 Efficient for building interactive, responsive SPAs<br>
+• 🌟 Large ecosystem and community support<br>
+• 🧩 Component-based architecture promotes reuse<br>
+• 🔗 Seamless REST API integration
+</td>
+</tr>
+</table>
 
-- **Public Routes:**  
-  - Routes starting with `/auth` (e.g., `/auth/login`, `/auth/signup`) are public.
-- **Private Routes:**  
-  - All routes starting with `/api` or others not under `/auth` are private.
-  - Private routes require a valid JWT token provided in the `Authorization` header.
-  - For each request, Spring Security validates this token:
-    - If **valid and not expired**, access is granted.
-    - If **invalid or expired**, returns an error (e.g., "Invalid token", "Token expired").
-    - If the user tries to access resources not belonging to them, returns **403 Forbidden**.
+### 🌱 Backend Framework
+
+<table>
+<tr>
+<td><strong>Framework</strong></td>
+<td>Spring Boot (Java)</td>
+</tr>
+<tr>
+<td><strong>Version</strong></td>
+<td>2.x</td>
+</tr>
+<tr>
+<td><strong>Why Chosen</strong></td>
+<td>
+• 💪 Robust and scalable REST API development<br>
+• 🔒 Mature security, validation, and database integration<br>
+• 🏗️ Dependency injection and modularity<br>
+• 🏢 Perfect for enterprise applications
+</td>
+</tr>
+</table>
+
+### 🗃️ Database
+
+<table>
+<tr>
+<td><strong>Database</strong></td>
+<td>MySQL</td>
+</tr>
+<tr>
+<td><strong>Version</strong></td>
+<td>8.x</td>
+</tr>
+<tr>
+<td><strong>Why Chosen</strong></td>
+<td>
+• 🔗 Relational model fits user-file relationships<br>
+• ⚡ ACID compliance ensures data integrity<br>
+• 🤝 Well-supported by Spring Boot<br>
+• 📈 Easy to scale and manage
+</td>
+</tr>
+</table>
+
+### 📈 Scaling for 1000+ Users
+
+> **🎯 Performance Optimization Strategies**
+
+<details>
+<summary><strong>Click to expand scaling recommendations</strong></summary>
+
+| Strategy                        | Implementation                          | Impact                              |
+| ------------------------------- | --------------------------------------- | ----------------------------------- |
+| 🔗 **Database Connection Pool** | HikariCP implementation                 | ⚡ Efficient DB access              |
+| ☁️ **Cloud File Storage**       | AWS S3 migration                        | 🚀 Better performance & scalability |
+| 🗄️ **Caching Layer**            | Redis for frequent queries              | ⚡ Reduced DB load                  |
+| ⚖️ **Load Balancing**           | Multiple backend instances              | 📈 Horizontal scaling               |
+| 🔍 **Database Optimization**    | Indexing & query optimization           | ⚡ Faster queries                   |
+| 🔄 **Async Processing**         | Background file operations              | 🚀 Better user experience           |
+| 📊 **Monitoring**               | Application & infrastructure monitoring | 🎯 Proactive issue detection        |
+
+</details>
+
+---
+
+## 🔄 System Flow
+
+### 📋 Flow Description
+
+<div align="center">
+
+```mermaid
+graph TD
+    A[👤 User] --> B[⚛️ Frontend - React]
+    B --> C[🌱 Backend - Spring Boot]
+    C --> D[🗃️ MySQL Database]
+    C --> E[📁 File Storage]
+
+    style A fill:#e1f5fe
+    style B fill:#e8f5e8
+    style C fill:#fff3e0
+    style D fill:#fce4ec
+    style E fill:#f3e5f5
+```
+
+</div>
+
+#### 🎯 Component Responsibilities
+
+| Component                    | Responsibilities                                                                                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **⚛️ Frontend (React)**      | • 🔐 User authentication & session management<br>• 📤 File upload interface<br>• 📥 File download & management<br>• 📊 Real-time data display             |
+| **🌱 Backend (Spring Boot)** | • 🛡️ JWT-based authentication & authorization<br>• 📁 File upload/download processing<br>• 🔍 User-specific data queries<br>• 💾 File metadata management |
+| **🗃️ Database (MySQL)**      | • 👥 User account storage<br>• 📋 File metadata & relationships<br>• 🔗 Data integrity maintenance                                                        |
+| **📁 File Storage**          | • 📄 PDF document storage<br>• 🗂️ Organized file structure<br>• 💾 Secure file access                                                                     |
+
+### 🔒 Security Flow
+
+<div align="center">
+
+```mermaid
+graph LR
+    A[🌐 Request] --> B{🔍 Route Check}
+    B -->|📖 Public /auth/*| C[✅ Allow Access]
+    B -->|🔒 Private /api/*| D[🎫 JWT Validation]
+    D -->|✅ Valid Token| E[🔐 Authorized Access]
+    D -->|❌ Invalid/Expired| F[🚫 401 Unauthorized]
+    E --> G{👤 Resource Owner?}
+    G -->|✅ Owner| H[📄 Access Granted]
+    G -->|❌ Not Owner| I[🚫 403 Forbidden]
+
+    style C fill:#c8e6c9
+    style E fill:#c8e6c9
+    style H fill:#c8e6c9
+    style F fill:#ffcdd2
+    style I fill:#ffcdd2
+```
+
+</div>
+
+#### 🛡️ Security Rules
+
+| Route Type            | Authentication            | Authorization         |
+| --------------------- | ------------------------- | --------------------- |
+| **📖 Public Routes**  | `/auth/*` (login, signup) | ❌ No token required  |
+| **🔒 Private Routes** | `/api/*` and others       | ✅ Valid JWT required |
+
+#### 🔐 Token Validation Process
+
+1. **🎫 Token Present?** → If missing: `401 Unauthorized`
+2. **⏰ Token Valid?** → If expired/invalid: `401 Unauthorized`
+3. **👤 Resource Owner?** → If not owner: `403 Forbidden`
+4. **✅ Success** → Access granted
 
 ### Simple ASCII Diagram
 
 ```
-[User] 
+[User]
    |
    v
 [Frontend (React)]
@@ -84,36 +216,56 @@
 
 ---
 
-## 3. API Specification
+## 🌐 API Specification
 
-| URL                                        | HTTP Method | Description                                                    | Auth Required |
-|---------------------------------------------|-------------|----------------------------------------------------------------|--------------|
-| `/auth/signup`                              | **POST**    | User registration                                              | No           |
-| `/auth/login`                               | **POST**    | User login                                                     | No           |
-| `/api/documents/upload`                     | **POST**    | Upload a file                                                  | Yes          |
-| `/api/documents/{id}`                       | **GET**     | Download a file (if uploaded by logged-in user)                | Yes          |
-| `/api/documents`                            | **GET**     | List files for logged-in user                                  | Yes          |
-| `/api/documents/{id}`                       | **DELETE**  | Delete a file (if uploaded by logged-in user)                  | Yes          |
+<div align="center">
+
+![API](https://img.shields.io/badge/API-RESTful-green.svg)
+![Auth](https://img.shields.io/badge/Auth-JWT-blue.svg)
+![Format](https://img.shields.io/badge/Format-JSON-yellow.svg)
+
+</div>
+
+### 📋 API Overview
+
+| 🔗 Endpoint             | 🎯 Method  | 📝 Description       | 🔒 Auth Required |
+| ----------------------- | ---------- | -------------------- | ---------------- |
+| `/auth/signup`          | **POST**   | 👤 User registration | ❌ No            |
+| `/auth/login`           | **POST**   | 🔐 User login        | ❌ No            |
+| `/api/documents/upload` | **POST**   | 📤 Upload a file     | ✅ Yes           |
+| `/api/documents/{id}`   | **GET**    | 📥 Download a file   | ✅ Yes           |
+| `/api/documents`        | **GET**    | 📋 List user files   | ✅ Yes           |
+| `/api/documents/{id}`   | **DELETE** | 🗑️ Delete a file     | ✅ Yes           |
 
 ---
 
-### Upload File
+### 📤 Upload File
 
-- **URL:** `POST http://localhost:8081/api/documents/upload`
-- **Method:** POST
-- **Auth Required:** Yes (JWT token in `Authorization` header)
-- **Sample Request:**  
-  - `Content-Type: multipart/form-data`
-  - Form field: `file` (PDF)
-- **Sample Response:**  
-  ```json
-  {
-      "fileName": "ospp-chap02-part5.pdf",
-      "message": "File uploaded successfully"
-  }
-  ```
-- **Description:**  
-  Upload a PDF file for the logged-in user; stores file in the server and metadata in the database.
+<div align="center">
+
+**`POST http://localhost:8081/api/documents/upload`**
+
+</div>
+
+| Property             | Value                                        |
+| -------------------- | -------------------------------------------- |
+| **🎯 Method**        | POST                                         |
+| **🔒 Auth Required** | ✅ Yes (JWT token in `Authorization` header) |
+| **📄 Content-Type**  | `multipart/form-data`                        |
+| **📝 Form Field**    | `file` (PDF only)                            |
+
+#### 📊 Sample Response
+
+```json
+{
+  "fileName": "ospp-chap02-part5.pdf",
+  "message": "File uploaded successfully"
+}
+```
+
+> ![Upload File API](uploadfile.JPG)
+
+**📝 Description:** Upload a PDF file for the logged-in user; stores file in the server and metadata in the database.
 
 ---
 
@@ -122,146 +274,253 @@
 - **URL:** `GET http://localhost:8081/api/documents/{id}`
 - **Method:** GET
 - **Auth Required:** Yes (JWT token in `Authorization` header)
-- **Sample Response:**  
+- **Sample Response:**
   - Returns the PDF file as a download.
+
+![download file](downloadfile.JPG)
+
 - **Description:**  
   Downloads the file with the specified ID **only if it was uploaded by the logged-in user**.  
   Unauthorized access to other users’ files is not permitted.
 
 ---
 
-### List Files
+---
 
-- **URL:** `GET http://localhost:8081/api/documents`
-- **Method:** GET
-- **Auth Required:** Yes (JWT token in `Authorization` header)
-- **Sample Response:**  
-  ```json
-  [
-      {
-          "id": 5,
-          "fileName": "Chapter 2 (1).pdf",
-          "uploadDate": "2025-08-05T21:19:35.671+00:00",
-          "fileSize": 1159689,
-          "user": {
-              "id": 2,
-              "email": "john.doe@example.com",
-              "name": "John Doe",
-              "password": null,
-              "phone": "9876543210",
-              "city": "Bangalore",
-              "country": "India",
-              "state": "Karnataka",
-              "pincode": "560001",
-              "createdAt": null
-          }
-      }
-  ]
-  ```
-- **Description:**  
-  Lists all reports uploaded by the currently authenticated user **only**.
+### 📋 List Files
+
+<div align="center">
+
+**`GET http://localhost:8081/api/documents`**
+
+</div>
+
+| Property             | Value                                        |
+| -------------------- | -------------------------------------------- |
+| **🎯 Method**        | GET                                          |
+| **🔒 Auth Required** | ✅ Yes (JWT token in `Authorization` header) |
+| **📄 Response**      | JSON array of file metadata                  |
+
+#### 📊 Sample Response
+
+```json
+[
+  {
+    "id": 5,
+    "fileName": "Chapter 2 (1).pdf",
+    "uploadDate": "2025-08-05T21:19:35.671+00:00",
+    "fileSize": 1159689,
+    "user": {
+      "id": 2,
+      "email": "john.doe@example.com",
+      "name": "John Doe",
+      "password": null,
+      "phone": "9876543210",
+      "city": "Bangalore",
+      "country": "India",
+      "state": "Karnataka",
+      "pincode": "560001",
+      "createdAt": null
+    }
+  }
+]
+```
+
+> ![List All Files](getAllfiles.JPG)
+
+**📝 Description:** Lists all reports uploaded by the currently authenticated user **only**.
 
 ---
 
-### Delete File
+---
 
-- **URL:** `DELETE http://localhost:8081/api/documents/{id}`
-- **Method:** DELETE
-- **Auth Required:** Yes (JWT token in `Authorization` header)
-- **Sample Response:**  
-  ```
-  File deleted successfully
-  ```
-- **Description:**  
-  Deletes the file and its metadata **only if it was uploaded by the logged-in user**.  
-  Users cannot delete files uploaded by others.
+### 🗑️ Delete File
+
+<div align="center">
+
+**`DELETE http://localhost:8081/api/documents/{id}`**
+
+</div>
+
+| Property             | Value                                        |
+| -------------------- | -------------------------------------------- |
+| **🎯 Method**        | DELETE                                       |
+| **🔒 Auth Required** | ✅ Yes (JWT token in `Authorization` header) |
+| **📄 Response**      | Success message                              |
+
+#### 📊 Sample Response
+
+```
+File deleted successfully
+```
+
+> ![Delete File](delete.JPG)
+
+**📝 Description:** Deletes the file and its metadata **only if it was uploaded by the logged-in user**. Users cannot delete files uploaded by others.
 
 ---
 
-### User Signup
+---
 
-- **URL:** `POST http://localhost:8081/auth/signup`
-- **Method:** POST
-- **Auth Required:** No
-- **Sample Request:**  
-  ```json
-  {
-    "email": "john.doe@example2.com",
-    "name": "John Doe",
-    "password": "password124",
-    "phone": "9876543210",
-    "city": "Bangalore",
-    "country": "India",
-    "state": "Karnataka",
-    "pincode": "560001"
-  }
-  ```
-- **Sample Response:**  
-  ```json
-  {
-    "token": "JWT_TOKEN_HERE",
-    "message": "User registered successfully"
-  }
-  ```
-- **Description:**  
-  Registers a new user and returns a JWT token on success.
+### 👤 User Signup
+
+<div align="center">
+
+**`POST http://localhost:8081/auth/signup`**
+
+</div>
+
+| Property             | Value              |
+| -------------------- | ------------------ |
+| **🎯 Method**        | POST               |
+| **🔒 Auth Required** | ❌ No              |
+| **📄 Content-Type**  | `application/json` |
+
+#### 📊 Sample Request
+
+```json
+{
+  "email": "john.doe@example2.com",
+  "name": "John Doe",
+  "password": "password124",
+  "phone": "9876543210",
+  "city": "Bangalore",
+  "country": "India",
+  "state": "Karnataka",
+  "pincode": "560001"
+}
+```
+
+#### 📊 Sample Response
+
+```json
+{
+  "token": "JWT_TOKEN_HERE",
+  "message": "User registered successfully"
+}
+```
+
+> ![User Signup](signup.JPG)
+
+**📝 Description:** Registers a new user and returns a JWT token on success.
 
 ---
 
-### User Login
+---
 
-- **URL:** `POST http://localhost:8081/auth/login`
-- **Method:** POST
-- **Auth Required:** No
-- **Sample Request:**  
-  ```json
-  {
-    "email": "john.doe@example.com",
-    "password": "password123"
-  }
-  ```
-- **Sample Response:**  
-  ```json
-  {
-    "token": "JWT_TOKEN_HERE",
-    "message": "User logged in successfully"
-  }
-  ```
-- **Description:**  
-  Authenticates a user and returns a JWT token for use in further requests.
+### 🔐 User Login
+
+<div align="center">
+
+**`POST http://localhost:8081/auth/login`**
+
+</div>
+
+| Property             | Value              |
+| -------------------- | ------------------ |
+| **🎯 Method**        | POST               |
+| **🔒 Auth Required** | ❌ No              |
+| **📄 Content-Type**  | `application/json` |
+
+#### 📊 Sample Request
+
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+#### 📊 Sample Response
+
+```json
+{
+  "token": "JWT_TOKEN_HERE",
+  "message": "User logged in successfully"
+}
+```
+
+> ![Login API](uploadfile-1.JPG)
+
+**📝 Description:** Authenticates a user and returns a JWT token for use in further requests.
 
 ---
 
-## 4. Data Flow Description
+## 📊 Data Flow Description
 
-- The user logs in and is authenticated (session or token).
-- User uploads a PDF file via the frontend.
-- The frontend sends a multipart/form-data request to the backend with the file.
-- Backend validates, saves the file in the `uploads` folder, and records metadata (including user ID) in MySQL.
-- When listing files, backend queries MySQL for files belonging to the logged-in user and returns metadata.
-- When downloading or deleting, backend **verifies file ownership** before proceeding; only the uploader can download or delete their files.
-- For every request to a private route, Spring Security checks the JWT token validity; if invalid/expired, it returns 401 (Unauthorized) or a relevant error. If the user is not the owner of the resource, returns 403 (Forbidden).
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant F as ⚛️ Frontend
+    participant B as 🌱 Backend
+    participant DB as 🗃️ Database
+    participant FS as 📁 File Storage
+
+    Note over U,FS: Authentication Flow
+    U->>F: 🔐 Login Request
+    F->>B: POST /auth/login
+    B->>DB: Validate User
+    DB-->>B: User Data
+    B-->>F: 🎫 JWT Token
+    F-->>U: Login Success
+
+    Note over U,FS: File Upload Flow
+    U->>F: 📤 Upload File
+    F->>B: POST /api/documents/upload + 🎫 JWT
+    B->>B: 🔍 Validate Token
+    B->>FS: 💾 Store File
+    B->>DB: 📋 Save Metadata
+    DB-->>B: Success
+    B-->>F: Upload Confirmation
+    F-->>U: Success Message
+```
+
+</div>
+
+### 🔄 Step-by-Step Process
+
+| Step   | Component       | Action                | Description                                 |
+| ------ | --------------- | --------------------- | ------------------------------------------- |
+| **1**  | 👤 **User**     | 🔐 Authentication     | User logs in with credentials               |
+| **2**  | ⚛️ **Frontend** | 🎫 Token Management   | Receives and stores JWT token               |
+| **3**  | 👤 **User**     | 📤 File Upload        | Selects PDF file for upload                 |
+| **4**  | ⚛️ **Frontend** | 📡 API Request        | Sends multipart/form-data with JWT          |
+| **5**  | 🌱 **Backend**  | 🔒 Token Validation   | Verifies JWT authenticity & expiry          |
+| **6**  | 🌱 **Backend**  | 💾 File Processing    | Saves file to uploads directory             |
+| **7**  | 🌱 **Backend**  | 📋 Metadata Storage   | Records file info + user ID in MySQL        |
+| **8**  | 👤 **User**     | 📋 File Listing       | Views personal files only                   |
+| **9**  | 🌱 **Backend**  | 🔍 Ownership Check    | Ensures user can only access own files      |
+| **10** | 👤 **User**     | 📥/🗑️ File Operations | Download/delete with ownership verification |
+
+### 🛡️ Security Checkpoints
+
+- **🎫 JWT Validation:** Every private route validates token authenticity
+- **⏰ Token Expiry:** Expired tokens return `401 Unauthorized`
+- **👤 Ownership Verification:** Users can only access their own files
+- **🚫 Access Control:** Non-owners receive `403 Forbidden`
 
 ---
 
 ## 5. Assumptions
 
-- **Authentication:**  
+- **Authentication:**
   - Only logged-in users can upload, list, download, or delete documents.
-- **Guest Login:**  
-  - For local development, a patient account with credentials `guest@gmail.com` / `guest@1234` should be created first in MySQL for initial access and testing.  
+- **Guest Login:**
+  - For local development, a patient account with credentials `guest@gmail.com` / `guest@1234` should be created first in MySQL for initial access and testing.
   - This user must exist in the DB before other actions can be performed.
-- **File Size Limits:**  
+- **File Size Limits:**
   - Maximum upload size is limited via Spring Boot configuration, e.g., 10MB.
-- **File Types:**  
+- **File Types:**
   - Only PDF uploads are accepted for security and standardization.
-- **Error Handling:**  
+- **Error Handling:**
   - All endpoints return clear error messages and HTTP status codes.
   - Attempting to access or delete files not uploaded by the current user returns a 403 Forbidden error.
   - Invalid or expired JWT tokens return appropriate authentication errors.
-- **File Storage:**  
+- **File Storage:**
   - Files are stored in a local `uploads` directory for development; can migrate to cloud for production.
-- **User Data:**  
+- **User Data:**
   - Each file is associated with a user; **only the owner can view, download, or delete their files**.
 
 ---
