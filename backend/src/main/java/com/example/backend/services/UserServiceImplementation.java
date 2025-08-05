@@ -19,6 +19,8 @@ public class UserServiceImplementation implements UserService {
     public User findUserByID(Long id) throws Exception {
         Optional<User> user = userRepository.findById(id);
 
+        user.get().setPassword(null);
+
         if (user.isEmpty()) {
             throw new Exception("User not found");
         }

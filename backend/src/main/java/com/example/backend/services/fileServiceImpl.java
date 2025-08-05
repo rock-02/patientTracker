@@ -86,6 +86,11 @@ public class fileServiceImpl implements fileService {
         try {
 
             List<documents> files = fileRepository.findAllByUser(user);
+
+            files.forEach(file -> {
+                User userTemp = file.getUser();
+                userTemp.setPassword(null); // Ensure password is not exposed
+            });
             return files;
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve file list: " + e.getMessage(), e);

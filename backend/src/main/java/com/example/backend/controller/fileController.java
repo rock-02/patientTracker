@@ -37,13 +37,14 @@ public class fileController {
     @Autowired
     private UserService userService;
 
-
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@RequestHeader("Authorization") String token) throws Exception {
         User user = userService.findUserByJwt(token);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        user.setPassword(null); // Ensure password is not exposed
         return ResponseEntity.ok(user);
     }
 
@@ -64,7 +65,7 @@ public class fileController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new fileResponse(fileName, "User not found or unauthorized."));
             }
-            documents fileDetails = fileService.uploadFile(user,file);
+            documents fileDetails = fileService.uploadFile(user, file);
             if (fileDetails == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new fileResponse(fileName, "File upload failed"));
@@ -87,7 +88,7 @@ public class fileController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or unauthorized.");
             }
 
-            documents details = fileService.getFile(user,id);
+            documents details = fileService.getFile(user, id);
             if (details == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File metadata not found for id: " + id);
             }
@@ -152,7 +153,7 @@ public class fileController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or unauthorized.");
             }
 
-            String result = fileService.deleteFile(user,id);
+            String result = fileService.deleteFile(user, id);
             if (result == null || result.toLowerCase().contains("not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found for id: " + id);
             }
