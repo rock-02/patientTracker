@@ -96,7 +96,16 @@ curl -X POST http://localhost:8081/auth/login \
 # Register New User
 curl -X POST http://localhost:8081/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","name":"Test User","password":"test123","phone":"1234567890","city":"City","country":"Country","state":"State","pincode":"123456"}'
+  -d '{
+    "email": "guest@gmail.com",
+    "name": "John Doe",
+    "password": "guest@1234",
+    "phone": "9876543210",
+    "city": "Bangalore",
+    "country": "India",
+    "state": "Karnataka",
+    "pincode": "560001"
+  }'
 ```
 
 ### File Operations
