@@ -9,7 +9,8 @@ import Login from "./auth/Login";
 import Register from "./auth/Register";
 
 function App() {
-  const [token, setToken] = useState(null);
+  // Initialize token synchronously from localStorage to avoid initial null state
+  const [token, setToken] = useState(() => localStorage.getItem("authToken"));
 
   // Simple token check on mount and updates
   useEffect(() => {
@@ -18,13 +19,16 @@ function App() {
       setToken(currentToken);
     };
 
-    // Initial check
-    checkToken();
+    // Listen for storage changes (from other tabs)
+    window.addEventListener("storage", checkToken);
 
-    // Set up interval to check for token changes
-    const interval = setInterval(checkToken, 1000);
+    // Listen for custom token change events (from same tab)
+    window.addEventListener("tokenChanged", checkToken);
 
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener("storage", checkToken);
+      window.removeEventListener("tokenChanged", checkToken);
+    };
   }, []);
 
   console.log("Current token:", token); // Debug log

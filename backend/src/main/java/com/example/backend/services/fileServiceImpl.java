@@ -87,6 +87,9 @@ public class fileServiceImpl implements fileService {
 
             List<documents> files = fileRepository.findAllByUser(user);
 
+            if (files.isEmpty()) {
+                throw new RuntimeException("No files found for user: " + user.getEmail());
+            }
             files.forEach(file -> {
                 User userTemp = file.getUser();
                 userTemp.setPassword(null); // Ensure password is not exposed

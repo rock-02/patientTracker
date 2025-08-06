@@ -1,20 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../utils/api";
 import "./Login.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("authToken");
-  if (token) {
-    // Redirect to home page if already logged in
-    navigate("/");
-  }
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
+
+  // Check if user is already logged in and redirect
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      // Redirect to home page if already logged in
+      navigate("/");
+    }
+  }, [navigate]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -122,8 +127,6 @@ const Login = () => {
 
         // Navigate to dashboard/home page after successful login
         navigate("/");
-
-        window.location.reload(); // Reload to ensure guest session is set
       } else {
         // Handle error response
         setErrors({

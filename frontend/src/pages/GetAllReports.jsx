@@ -19,13 +19,93 @@ const GetAllReports = () => {
 
   // Check authentication on component mount
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
-    fetchReports();
-    fetchUserDetails();
-  }, [navigate]);
+    const loadData = async () => {
+      if (!isAuthenticated()) {
+        navigate("/login");
+        return;
+      }
+
+      console.log("Component mounted, loading data...");
+
+      // Fetch reports
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await getAllReports();
+
+        if (!response.ok) {
+          // Handle specific error responses
+          if (response.status === 401) {
+            navigate("/login");
+            return;
+          } else if (response.status === 403) {
+            setError(
+              "Access denied. Please check your authentication and try again."
+            );
+            return;
+          }
+
+          // Try to get error message from response
+          const errorData = await response.text();
+          console.log("Error response:", errorData);
+
+          // Check if it's a "no files found" message
+          if (
+            errorData.includes("No files found for user") ||
+            errorData.includes("Failed to retrieve file list")
+          ) {
+            console.log("No files found - showing empty state");
+            setReports([]);
+            setLoading(false);
+            return;
+          }
+
+          throw new Error(`HTTP error: ${response.status} - ${errorData}`);
+        }
+
+        const data = await response.json();
+        console.log("Reports data received:", data);
+        // Ensure data is always an array, even if empty
+        setReports(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Error fetching reports:", err.message);
+
+        // Check if the error message indicates no files found
+        if (
+          err.message.includes("No files found for user") ||
+          err.message.includes("Failed to retrieve file list")
+        ) {
+          console.log("No files found in catch block - showing empty state");
+          setReports([]);
+          setLoading(false);
+          return;
+        }
+
+        // Check if it's a network error
+        if (
+          err.message.includes("Failed to fetch") ||
+          err.message.includes("NetworkError")
+        ) {
+          setError(
+            "Network error. Please check your internet connection and try again."
+          );
+        } else {
+          setError(
+            err.message || "Failed to load reports. Please try again later."
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+
+      // Fetch user details
+      fetchUserDetails();
+    };
+
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   const fetchUserDetails = async () => {
     try {
@@ -57,14 +137,64 @@ const GetAllReports = () => {
       const response = await getAllReports();
 
       if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        // Handle specific error responses
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        } else if (response.status === 403) {
+          setError(
+            "Access denied. Please check your authentication and try again."
+          );
+          return;
+        }
+
+        // Try to get error message from response
+        const errorData = await response.text();
+        console.log("Error response:", errorData);
+
+        // Check if it's a "no files found" message
+        if (
+          errorData.includes("No files found for user") ||
+          errorData.includes("Failed to retrieve file list")
+        ) {
+          console.log("No files found - showing empty state");
+          setReports([]);
+          return;
+        }
+
+        throw new Error(`HTTP error: ${response.status} - ${errorData}`);
       }
 
       const data = await response.json();
+      console.log("Reports data received:", data);
+      // Ensure data is always an array, even if empty
       setReports(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching reports:", err.message);
-      setError("Failed to load reports. Please try again later.");
+
+      // Check if the error message indicates no files found
+      if (
+        err.message.includes("No files found for user") ||
+        err.message.includes("Failed to retrieve file list")
+      ) {
+        console.log("No files found in catch block - showing empty state");
+        setReports([]);
+        return;
+      }
+
+      // Check if it's a network error
+      if (
+        err.message.includes("Failed to fetch") ||
+        err.message.includes("NetworkError")
+      ) {
+        setError(
+          "Network error. Please check your internet connection and try again."
+        );
+      } else {
+        setError(
+          err.message || "Failed to load reports. Please try again later."
+        );
+      }
     } finally {
       setLoading(false);
     }

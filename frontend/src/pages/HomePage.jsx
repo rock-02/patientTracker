@@ -207,7 +207,7 @@ const HomePage = () => {
       {/* Hospital Features */}
       <section className="features-section">
         <div className="container">
-          <h2>Why Choose CityCare Hospital?</h2>
+          <h2>Why Choose MediCare Hospital?</h2>
           <div className="features-grid">
             <div className="feature">
               <div className="feature-icon">🏆</div>

@@ -319,3 +319,6 @@ File deleted successfully
 > ![Login API](uploadfile-1.JPG)
 
 **📝 Description:** Authenticates a user and returns a JWT token for use in further requests.
+
+
+<video controls src="20250806074439.mp4" title="Title"></video>
