@@ -227,3 +227,31 @@ File deleted successfully
 **`POST http://localhost:8081/auth/login`**
 
 </div>
+
+| Property             | Value              |
+| -------------------- | ------------------ |
+| **🎯 Method**        | POST               |
+| **🔒 Auth Required** | ❌ No              |
+| **📄 Content-Type**  | `application/json` |
+
+#### 📊 Sample Request
+
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+#### 📊 Sample Response
+
+```json
+{
+  "token": "JWT_TOKEN_HERE",
+  "message": "User logged in successfully"
+}
+```
+
+> ![Login API](uploadfile-1.JPG)
+
+**📝 Description:** Authenticates a user and returns a JWT token for use in further requests.
