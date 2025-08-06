@@ -5,23 +5,6 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.x-green.svg)
 ![React](https://img.shields.io/---
 
-| Property             | Value                                        |
-| -------------------- | -------------------------------------------- |
-| **🎯 Method**        | GET                                          |
-| **🔒 Auth Required** | ✅ Yes (JWT token in `Authorization` header) |
-| **📄 Response**      | PDF file as download                         |
-
-> ![Download File](downloadfile.JPG)
-
-**📝 Description:** Downloads the file with the specified ID **only if it was uploaded by the logged-in user**. Unauthorized access to other users' files is not permitted.x-blue.svg)
-![MySQL](https://img.shields.io/badge/MySQL-8.x-orange.svg)
-
-_A secure, scalable document management system for healthcare professionals_
-
-</div>
-
----
-
 ## 📚 Table of Contents
 
 - [🛠️ Tech Stack Choices](#️-tech-stack-choices)
