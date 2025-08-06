@@ -90,12 +90,10 @@ npm run dev
 ```bash
 # Login with Guest User (for testing)
 curl -X POST http://localhost:8081/auth/login \
-  -H "Content-Type: application/json" \
   -d '{"email":"guest@gmail.com","password":"guest@1234"}'
 
 # Register New User
 curl -X POST http://localhost:8081/auth/signup \
-  -H "Content-Type: application/json" \
   -d '{
     "email": "guest@gmail.com",
     "name": "John Doe",
