@@ -10,6 +10,8 @@ export const getAuthToken = () => {
 // Remove token from localStorage (for logout)
 export const removeAuthToken = () => {
   localStorage.removeItem("authToken");
+  // Dispatch custom event to notify App component
+  window.dispatchEvent(new Event("tokenChanged"));
 };
 
 // Logout function
@@ -40,6 +42,8 @@ export const loginUser = async (email, password) => {
   if (response.ok) {
     // Store token in localStorage
     localStorage.setItem("authToken", data.token);
+    // Dispatch custom event to notify App component
+    window.dispatchEvent(new Event("tokenChanged"));
   }
 
   return { response, data };
@@ -59,6 +63,8 @@ export const registerUser = async (userData) => {
   if (response.ok) {
     // Store token in localStorage after successful signup
     localStorage.setItem("authToken", data.token);
+    // Dispatch custom event to notify App component
+    window.dispatchEvent(new Event("tokenChanged"));
   }
 
   return { response, data };

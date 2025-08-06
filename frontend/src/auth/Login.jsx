@@ -122,6 +122,8 @@ const Login = () => {
 
         // Navigate to dashboard/home page after successful login
         navigate("/");
+
+        window.location.reload(); // Reload to ensure guest session is set
       } else {
         // Handle error response
         setErrors({
