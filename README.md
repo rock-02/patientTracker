@@ -49,22 +49,79 @@ npm run dev
    CREATE SCHEMA patienttrackerdb;
    ```
 3. **Run Backend:**
+
    ```bash
    cd backend
    ./mvnw spring-boot:run
    ```
+
    **Backend runs on: http://localhost:8081**
+
+4. **Create Guest User (First Time Setup):**
+   After running the backend for the first time, create a guest account for testing:
+
+   ```bash
+   # Register Guest User
+   curl -X POST http://localhost:8081/auth/signup \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "guest@gmail.com",
+       "name": "Guest User",
+       "password": "guest@1234",
+       "phone": "1234567890",
+       "city": "Test City",
+       "country": "Test Country",
+       "state": "Test State",
+       "pincode": "123456"
+     }'
+   ```
+
+   **Guest Login Credentials:**
+
+   - Email: `guest@gmail.com`
+   - Password: `guest@1234`
 
 ---
 
 ## 🌐 Example APIs
 
-| Property             | Value                                        |
-| -------------------- | -------------------------------------------- |
-| **🎯 Method**        | POST                                         |
-| **🔒 Auth Required** | ✅ Yes (JWT token in `Authorization` header) |
-| **📄 Content-Type**  | `multipart/form-data`                        |
-| **📝 Form Field**    | `file` (PDF only)                            |
+### Authentication
+
+```bash
+# Login with Guest User (for testing)
+curl -X POST http://localhost:8081/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"guest@gmail.com","password":"guest@1234"}'
+
+# Register New User
+curl -X POST http://localhost:8081/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","name":"Test User","password":"test123","phone":"1234567890","city":"City","country":"Country","state":"State","pincode":"123456"}'
+```
+
+### File Operations
+
+```bash
+# Upload File (use token from login response)
+curl -X POST http://localhost:8081/api/documents/upload \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "file=@document.pdf"
+
+# List Files
+curl -X GET http://localhost:8081/api/documents \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Download File
+curl -X GET http://localhost:8081/api/documents/1 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -o file.pdf
+
+# Delete File
+curl -X DELETE http://localhost:8081/api/documents/1 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**That's it! 🎉**
 
 #### 📊 Sample Response
 
