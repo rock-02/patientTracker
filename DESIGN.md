@@ -2,7 +2,6 @@
 
 <div align="center">
 
-![PatientTracker](https://img.shields.io/badge/PatientTracker-v1.0-blue.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.x-green.svg)
 ![React](https://img.shields.io/---
 
@@ -503,24 +502,78 @@ sequenceDiagram
 
 ---
 
-## 5. Assumptions
+## ⚠️ Assumptions
 
-- **Authentication:**
-  - Only logged-in users can upload, list, download, or delete documents.
-- **Guest Login:**
-  - For local development, a patient account with credentials `guest@gmail.com` / `guest@1234` should be created first in MySQL for initial access and testing.
-  - This user must exist in the DB before other actions can be performed.
-- **File Size Limits:**
-  - Maximum upload size is limited via Spring Boot configuration, e.g., 10MB.
-- **File Types:**
-  - Only PDF uploads are accepted for security and standardization.
-- **Error Handling:**
-  - All endpoints return clear error messages and HTTP status codes.
-  - Attempting to access or delete files not uploaded by the current user returns a 403 Forbidden error.
-  - Invalid or expired JWT tokens return appropriate authentication errors.
-- **File Storage:**
-  - Files are stored in a local `uploads` directory for development; can migrate to cloud for production.
-- **User Data:**
-  - Each file is associated with a user; **only the owner can view, download, or delete their files**.
+### 🔐 Authentication & Authorization
+
+<table>
+<tr>
+<td><strong>🎯 Requirement</strong></td>
+<td><strong>📝 Details</strong></td>
+</tr>
+<tr>
+<td><strong>🔒 User Authentication</strong></td>
+<td>Only logged-in users can upload, list, download, or delete documents</td>
+</tr>
+<tr>
+<td><strong>👤 Resource Ownership</strong></td>
+<td>Users can only access files they uploaded</td>
+</tr>
+<tr>
+<td><strong>🎫 JWT Security</strong></td>
+<td>All private routes require valid, non-expired JWT tokens</td>
+</tr>
+</table>
+
+### 🧪 Development Setup
+
+| Component            | Configuration                                               |
+| -------------------- | ----------------------------------------------------------- |
+| **👥 Guest Account** | `guest@gmail.com` / `guest@1234` (pre-created in MySQL)     |
+| **📁 File Storage**  | Local `uploads` directory (migrate to cloud for production) |
+| **🗃️ Database**      | MySQL with required tables pre-configured                   |
+
+### 📋 File Management Rules
+
+<div align="center">
+
+| Rule                 | Value                | Icon |
+| -------------------- | -------------------- | ---- |
+| **File Size Limit**  | 10MB max             | 📏   |
+| **Supported Types**  | PDF only             | 📄   |
+| **Access Control**   | Owner-only           | 🔒   |
+| **Storage Location** | Local uploads folder | 📁   |
+
+</div>
+
+### 🚨 Error Handling
+
+| Scenario                  | HTTP Status             | Response                     |
+| ------------------------- | ----------------------- | ---------------------------- |
+| **Invalid/Expired JWT**   | `401 Unauthorized`      | Authentication error message |
+| **Non-owner file access** | `403 Forbidden`         | Access denied error          |
+| **File not found**        | `404 Not Found`         | Resource not found error     |
+| **Invalid file type**     | `400 Bad Request`       | File type validation error   |
+| **File size exceeded**    | `413 Payload Too Large` | Size limit error             |
+
+### 🎯 Production Considerations
+
+> **💡 Recommendations for scaling beyond development:**
+
+- **☁️ Cloud Storage:** Migrate from local uploads to AWS S3/Azure Blob
+- **🗄️ Database:** Implement connection pooling and read replicas
+- **📊 Monitoring:** Add comprehensive logging and metrics
+- **🔐 Security:** Implement rate limiting and additional security headers
+- **🚀 Performance:** Add CDN for file delivery and caching strategies
 
 ---
+
+<div align="center">
+
+**🏥 PatientTracker** - _Secure Document Management for Healthcare_
+
+![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red.svg)
+![Spring Boot](https://img.shields.io/badge/Powered%20by-Spring%20Boot-green.svg)
+![React](https://img.shields.io/badge/UI-React-blue.svg)
+
+</div>
