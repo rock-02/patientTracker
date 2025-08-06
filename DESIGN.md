@@ -5,14 +5,6 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.x-green.svg)
 ![React](https://img.shields.io/---
 
-### 📥 Download File
-
-<div align="center">
-
-**`GET http://localhost:8081/api/documents/{id}`**
-
-</div>
-
 | Property             | Value                                        |
 | -------------------- | -------------------------------------------- |
 | **🎯 Method**        | GET                                          |
